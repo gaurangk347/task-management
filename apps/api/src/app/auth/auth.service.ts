@@ -5,6 +5,25 @@ import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { Role } from '../entities/role.entity';
 import { LoginDto, AuthResponse } from '@task-management/data';
+import { RoleType } from '@task-management/data';
+
+// Typed JWT payload carried in the signed token
+interface JwtPayload {
+  sub: string;
+  email: string;
+  role?: RoleType;
+  organizationId: string;
+  iat?: number;
+  exp?: number;
+}
+
+// Shape returned by validateUser for guards/strategies
+interface ValidatedUser {
+  id: string;
+  email: string;
+  role?: RoleType;
+  organizationId: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -45,11 +64,12 @@ export class AuthService {
         organizationId: user.organizationId,
         roleId: user.roleId,
         createdAt: user.createdAt,
+        role: (role?.name as RoleType) || RoleType.VIEWER,
       },
     };
   }
 
-  async validateUser(payload: any): Promise<any> {
+  async validateUser(payload: JwtPayload): Promise<ValidatedUser> {
     return {
       id: payload.sub,
       email: payload.email,

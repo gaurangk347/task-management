@@ -19,8 +19,16 @@ export class LoginComponent {
   };
   loading = false;
   error = '';
+  showPassword = false; // Add this property
+
   private authService = inject(AuthService);
   private router = inject(Router);
+
+  // Add this method
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
   onSubmit(): void {
     if (!this.credentials.email || !this.credentials.password) {
       this.error = 'Please fill in all fields';

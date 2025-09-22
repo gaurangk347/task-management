@@ -6,6 +6,10 @@ export interface User {
   createdAt: Date;
 }
 
+import type { RoleType } from './role.interface';
+
+export type UserWithRole = Omit<User, 'password'> & { role: RoleType };
+
 export interface CreateUserDto {
   email: string;
   password: string;
@@ -20,5 +24,5 @@ export interface LoginDto {
 
 export interface AuthResponse {
   access_token: string;
-  user: Omit<User, 'password'>;
+  user: UserWithRole;
 }

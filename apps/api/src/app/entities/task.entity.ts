@@ -5,6 +5,7 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { TaskStatus, TaskCategory } from '@task-management/data';
 import { User } from './user.entity';
@@ -44,12 +45,15 @@ export class Task {
   createdBy: string;
 
   @ManyToOne(() => User)
+  @JoinColumn({ name: 'assigneeId' })
   assignee: User;
 
   @ManyToOne(() => Organization)
+  @JoinColumn({ name: 'organizationId' })
   organization: Organization;
 
   @ManyToOne(() => User)
+  @JoinColumn({ name: 'createdBy' })
   creator: User;
 
   @CreateDateColumn()

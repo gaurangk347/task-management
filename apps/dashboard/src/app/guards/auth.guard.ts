@@ -1,13 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 
-import { Observable } from 'rxjs';
-
-export interface AuthService {
-  isAuthenticated(): boolean;
-  currentUser$: Observable<any>;
-}
-
 @Injectable({
   providedIn: 'root',
 })

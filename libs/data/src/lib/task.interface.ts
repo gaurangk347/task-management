@@ -20,6 +20,15 @@ export interface Task {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+  // Optional relation loaded by API for owner/admin views
+  assignee?: {
+    id: string;
+    email: string;
+  };
+  creator?: {
+    id: string;
+    email: string;
+  };
 }
 
 export interface CreateTaskDto {

@@ -5,7 +5,7 @@ export interface AuditLog {
   resource: string;
   resourceId: string;
   timestamp: Date;
-  details?: any;
+  details?: unknown;
 }
 
 export interface CreateAuditLogDto {
@@ -13,5 +13,5 @@ export interface CreateAuditLogDto {
   action: string;
   resource: string;
   resourceId: string;
-  details?: any;
+  details?: unknown;
 }

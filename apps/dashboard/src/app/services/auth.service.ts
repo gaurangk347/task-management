@@ -3,7 +3,7 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { LoginDto, AuthResponse, User } from '@task-management/data';
+import { LoginDto, AuthResponse, UserWithRole } from '@task-management/data';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -11,7 +11,8 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
   private readonly API_URL = environment.apiUrl;
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  // Store current user with role provided by backend
+  private currentUserSubject = new BehaviorSubject<UserWithRole | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   private http = inject(HttpClient);
@@ -26,7 +27,13 @@ export class AuthService {
     const user = localStorage.getItem('currentUser');
 
     if (token && user) {
-      this.currentUserSubject.next(JSON.parse(user));
+      try {
+        const parsedUser = JSON.parse(user) as UserWithRole;
+        this.currentUserSubject.next(parsedUser);
+      } catch {
+        // Fallback: clear corrupted storage
+        localStorage.removeItem('currentUser');
+      }
     }
     return true;
   }
@@ -54,11 +61,7 @@ export class AuthService {
     return localStorage.getItem('access_token');
   }
 
-  isAuthenticated(): boolean {
-    return !!this.getToken();
-  }
-
-  getCurrentUser(): User | null {
+  getCurrentUser(): UserWithRole | null {
     return this.currentUserSubject.value;
   }
 }

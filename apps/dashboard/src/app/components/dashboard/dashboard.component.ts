@@ -1,13 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { TaskService } from '../../services/task.service';
-import {
-  Task,
-  CreateTaskDto,
-  TaskCategory,
-  TaskStatus,
-  User,
-} from '@task-management/data';
+import { Task, CreateTaskDto, TaskCategory, TaskStatus, UserWithRole } from '@task-management/data';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,7 +18,7 @@ export class DashboardComponent implements OnInit {
   private taskService = inject(TaskService);
 
   tasks$: Observable<Task[]> = this.taskService.tasks$;
-  currentUser$: Observable<User | null> = this.authService.currentUser$;
+  currentUser$: Observable<UserWithRole | null> = this.authService.currentUser$;
 
   newTask: CreateTaskDto = {
     title: '',

@@ -8,6 +8,14 @@ import { Repository } from 'typeorm';
 import { Task } from '../entities/task.entity';
 import { CreateTaskDto, UpdateTaskDto, RoleType } from '@task-management/data';
 
+// Narrow user shape expected from JWT validation/guards
+interface UserContext {
+  id: string;
+  email: string;
+  organizationId: string;
+  role?: RoleType;
+}
+
 @Injectable()
 export class TasksService {
   constructor(
@@ -15,7 +23,7 @@ export class TasksService {
     private taskRepository: Repository<Task>
   ) {}
 
-  async create(createTaskDto: CreateTaskDto, user: any): Promise<Task> {
+  async create(createTaskDto: CreateTaskDto, user: UserContext): Promise<Task> {
     const task = this.taskRepository.create({
       ...createTaskDto,
       createdBy: user.id,
@@ -26,8 +34,18 @@ export class TasksService {
     return this.taskRepository.save(task);
   }
 
-  async findAllForUser(user: any): Promise<Task[]> {
-    const queryBuilder = this.taskRepository.createQueryBuilder('task');
+  async findAllForUser(user: UserContext): Promise<Task[]> {
+    const queryBuilder = this.taskRepository
+      .createQueryBuilder('task')
+      .leftJoinAndSelect('task.assignee', 'assignee')
+      .leftJoinAndSelect('task.creator', 'creator')
+      .select([
+        'task',
+        'assignee.id',
+        'assignee.email',
+        'creator.id',
+        'creator.email',
+      ]);
 
     // Scope tasks based on user role and organization
     if (user.role === RoleType.OWNER) {
@@ -51,7 +69,7 @@ export class TasksService {
   async update(
     id: string,
     updateTaskDto: UpdateTaskDto,
-    user: any
+    user: UserContext
   ): Promise<Task> {
     const task = await this.taskRepository.findOne({ where: { id } });
 
@@ -68,7 +86,7 @@ export class TasksService {
     return this.taskRepository.save(task);
   }
 
-  async remove(id: string, user: any): Promise<void> {
+  async remove(id: string, user: UserContext): Promise<void> {
     const task = await this.taskRepository.findOne({ where: { id } });
 
     if (!task) {
@@ -82,7 +100,7 @@ export class TasksService {
     await this.taskRepository.remove(task);
   }
 
-  private canUserModifyTask(task: Task, user: any): boolean {
+  private canUserModifyTask(task: Task, user: UserContext): boolean {
     // Owner and Admin can modify any task in their org
     if (user.role === RoleType.OWNER || user.role === RoleType.ADMIN) {
       return task.organizationId === user.organizationId;
