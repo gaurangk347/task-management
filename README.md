@@ -43,9 +43,15 @@ API_URL=http://localhost:3000
 #### Quick Start
 
 ```bash
-# Install dependencies and start both frontend and backend
+# Install dependencies, seed the database, and start both frontend and backend
 npm install
+npm run seed
 npm start
+
+# or with yarn
+yarn install
+yarn seed
+yarn start
 ```
 
 #### Backend
