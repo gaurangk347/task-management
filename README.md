@@ -1,82 +1,343 @@
-# TaskManagement2
+# Task Management System
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A comprehensive task management solution built with NX monorepo, featuring role-based access control, JWT authentication, and a modern tech stack.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+## 🚀 Setup Instructions
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+### Prerequisites
 
-## Finish your remote caching setup
+- Node.js (v16+)
+- npm or yarn
+- SQLite (included in most operating systems)
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/IiirOzXd53)
+### Installation
 
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-## Run tasks
+### Environment Setup
 
-To run the dev server for your app, use:
+Create a `.env` file in the root directory with the following variables:
 
-```sh
-npx nx serve dashboard
+```env
+# JWT
+JWT_SECRET=your_jwt_secret_key
+
+# Database
+DATABASE_URL=tasks.db
+
+# Environment
+NODE_ENV=development
+
+# API
+API_URL=http://localhost:3000
 ```
 
-To create a production bundle:
+### Running the Applications
 
-```sh
-npx nx build dashboard
+#### Quick Start
+
+```bash
+# Install dependencies and start both frontend and backend
+npm install
+npm start
 ```
 
-To see all available targets to run for a project, run:
+#### Backend
 
-```sh
-npx nx show project dashboard
+```bash
+# Start the API server
+nx serve api
+
+# Run in development mode with watch
+nx serve api --watch
+
+# Run tests
+nx test api
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+#### Frontend
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+# Start the development server
+nx serve dashboard
 
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/angular:app demo
+# Build for production
+nx build dashboard
 ```
 
-To generate a new library, use:
+## 🏗️ Architecture Overview
 
-```sh
-npx nx g @nx/angular:lib mylib
+### NX Monorepo Structure
+
+```
+task-management/
+├── apps/
+│   ├── api/              # NestJS backend application
+│   └── dashboard/        # Frontend application (Angular)
+├── libs/
+│   ├── auth/            # Authentication and authorization logic
+│   └── data/            # Database models and repositories
+└── tools/               # Development tools and scripts
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+### Shared Libraries
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **@task-management/auth**: Handles authentication, JWT generation/validation, and access control
+- **@task-management/data**: Database models, repositories, and data access layer
 
+## 🗃️ Data Model
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Core Entities
 
-## Install Nx Console
+#### User
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+- id: UUID (primary key)
+- email: string (unique)
+- password: string (hashed, automatically hashed before insert)
+- organizationId: UUID (foreign key to Organization)
+- roleId: UUID (foreign key to Role)
+- organization: Organization (relation)
+- role: Role (relation)
+- createdAt: DateTime (auto-generated)
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+#### Organization
 
-## Useful links
+- id: UUID (primary key)
+- name: string
+- parentId: UUID? (self-referential, for hierarchical organizations)
+- createdAt: DateTime (auto-generated)
 
-Learn more:
+#### Role
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- id: UUID (primary key)
+- name: RoleType (enum: 'owner', 'admin', 'viewer')
+- permissions: Permission[] (stored as JSON)
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+#### Task
+
+- id: UUID (primary key)
+- title: string
+- description: string (text type)
+- status: TaskStatus (enum: TODO, IN_PROGRESS, DONE)
+- category: TaskCategory (enum)
+- assigneeId: UUID (foreign key to User)
+- organizationId: UUID (foreign key to Organization)
+- createdBy: string (ID of the user who created the task)
+- assignee: User (relation to the assigned user)
+- organization: Organization (relation to the organization)
+- creator: User (relation to the task creator)
+- createdAt: DateTime (auto-generated)
+- updatedAt: DateTime (auto-updated)
+
+#### AuditLog
+
+- id: UUID (primary key)
+- userId: string (ID of the user who performed the action)
+- action: string (the action performed, e.g., 'create', 'update', 'delete')
+- resource: string (the type of resource that was affected, e.g., 'Task', 'User')
+- resourceId: string (ID of the affected resource)
+- details: JSON (stores additional context about the action, nullable)
+- timestamp: DateTime (auto-generated when the log entry is created)
+- user: User (relation to the user who performed the action)
+- createdAt: DateTime
+- updatedAt: DateTime
+
+## 🔒 Access Control
+
+### Role-Based Access Control (RBAC)
+
+#### Role Hierarchy
+
+Roles are ordered in a hierarchy where each role includes all permissions from the roles below it:
+
+1. **VIEWER** (Lowest level)
+
+   - Basic read access to tasks
+
+2. **ADMIN**
+
+   - All VIEWER permissions
+   - Full task management (create, read, update, delete)
+   - Read access to audit logs
+
+3. **OWNER** (Highest level)
+   - All ADMIN permissions
+   - Full user management (create, read, update, delete users)
+
+#### Permissions by Role
+
+##### VIEWER
+
+- **TASK**
+  - `READ` - View tasks
+
+##### ADMIN
+
+- **TASK**
+  - `CREATE` - Create new tasks
+  - `READ` - View tasks
+  - `UPDATE` - Modify existing tasks
+  - `DELETE` - Remove tasks
+- **AUDIT_LOG**
+  - `READ` - View audit logs
+
+##### OWNER
+
+- All ADMIN permissions, plus:
+- **USER**
+  - `CREATE` - Add new users
+  - `READ` - View user information
+  - `UPDATE` - Modify user details
+  - `DELETE` - Remove users
+
+#### Organization Access
+
+- Users can access resources within their own organization
+- OWNER role can access resources in sub-organizations (hierarchical access)
+- Organization access is checked in addition to role-based permissions
+
+### Permission System
+
+- Permissions are checked at both route and resource levels
+- Organization-based isolation ensures users can only access resources within their organization
+- Custom decorators and guards enforce access control
+
+### JWT Integration
+
+- JWT tokens contain user ID, role, and organization ID
+- Tokens are verified on each request via an authentication guard
+- Tokens expire after a configurable period (default: 1 day)
+
+## 📚 API Documentation
+
+### Authentication
+
+#### Login
+
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "securepassword"
+}
+```
+
+Response:
+
+```json
+{
+  "access_token": "jwt.token.here",
+  "user": {
+    "id": "user-uuid",
+    "email": "user@example.com",
+    "organizationId": "org-uuid",
+    "roleId": "role-uuid",
+    "role": "owner|admin|viewer",
+    "createdAt": "2023-01-01T00:00:00.000Z"
+  }
+}
+```
+
+### Tasks
+
+#### Get All Tasks (Requires TASK:READ permission)
+
+```http
+GET /tasks
+Authorization: Bearer <token>
+```
+
+#### Create Task (Requires TASK:CREATE permission)
+
+```http
+POST /tasks
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "title": "New Task",
+  "description": "Task description",
+  "category": "work|personal",
+  "assigneeId": "user-uuid"
+}
+```
+
+## 🚀 Future Considerations
+
+### Role-Based Task Assignment (Dashboard Implementation)
+
+#### Viewer Experience
+- **Task Creation**:
+  - Assignee field defaults to current user and is disabled
+  - Can only set status for their own tasks
+  - Limited to viewing tasks assigned to them
+- **Task List**:
+  - Filtered to show only tasks where user is assignee or creator
+  - Read-only view for tasks assigned to others
+
+#### Admin Experience
+- **Task Assignment**:
+  - Can assign tasks to themselves or any Viewer
+  - User dropdown in task form filters to show only self and Viewers
+  - Can update status for any task in their organization
+- **Task Management**:
+  - Can view, edit, and delete tasks within their organization
+  - Advanced filtering by assignee, status, and category
+
+#### Owner Experience
+- **Full Control**:
+  - Can assign tasks to any user in the organization
+  - Complete CRUD operations on all tasks
+  - Access to all organization metrics and reports
+- **User Management**:
+  - User assignment dropdown shows all organization members
+  - Can override task assignments when necessary
+
+#### UI/UX Considerations
+- Dynamic form fields based on user role
+- Clear visual indicators for task ownership and assignment capabilities
+- Contextual help for role-based limitations
+- Bulk actions for task management where appropriate
+
+### User Management Interface
+- **Admin Interface**: Allow admins to create and manage Viewer users
+- **Owner Interface**: Enable owners to create and manage both Admin and Viewer users
+- **User Onboarding**: Streamlined user registration and role assignment
+
+### Testing
+- **API Testing**: Comprehensive test coverage for all API endpoints
+- **Frontend Testing**: Unit and integration tests for the dashboard
+- **E2E Testing**: Full workflow testing from UI to database
+
+### Advanced Features
+- **Role Delegation**: Allow managers to temporarily delegate their permissions
+- **Team Management**: Support for team-based task assignment and tracking
+- **Audit Logs**: Comprehensive logging of all system actions
+
+### Security Enhancements
+
+- **Refresh Tokens**: Implement refresh token rotation for better security
+- **CSRF Protection**: Add CSRF tokens for sensitive operations
+- **Rate Limiting**: Protect against brute force attacks
+- **RBAC Caching**: Cache permission checks for better performance
+
+### Performance Optimizations
+
+- **Pagination**: For large datasets
+- **Selective Field Loading**: Only fetch required fields
+- **Caching Layer**: Implement Redis for frequently accessed data
+- **Background Jobs**: Offload long-running tasks to job queues
+
+### Monitoring and Observability
+
+- **Error Tracking**: Integrate with error monitoring services
+- **Performance Metrics**: Track API response times and error rates
+- **Usage Analytics**: Monitor feature usage and system health
